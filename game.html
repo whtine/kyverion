@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hearts of History: 1939</title>
+
     <style>
         /* Стиль в духе HOI4: темная сталь, золото и милитари */
         body {
@@ -104,9 +105,18 @@
             border-right: 1px solid #3a4145;
         }
 
-        .countries-sidebar::-webkit-scrollbar { width: 6px; }
-        .countries-sidebar::-webkit-scrollbar-track { background: #1c2022; }
-        .countries-sidebar::-webkit-scrollbar-thumb { background: #3a4145; border-radius: 3px; }
+        .countries-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .countries-sidebar::-webkit-scrollbar-track {
+            background: #1c2022;
+        }
+
+        .countries-sidebar::-webkit-scrollbar-thumb {
+            background: #3a4145;
+            border-radius: 3px;
+        }
 
         .country-select-btn {
             display: flex;
@@ -121,7 +131,8 @@
             transition: 0.2s;
         }
 
-        .country-select-btn:hover, .country-select-btn.active-country {
+        .country-select-btn:hover,
+        .country-select-btn.active-country {
             background: #2e3539;
             border-color: #e9c46a;
             color: #fff;
@@ -222,7 +233,7 @@
                 <div id="details-block" style="display: none;">
                     <div class="country-header">
                         <div id="big-flag-placeholder"></div>
-                        <h3 id="view-name" style="text-align: left; border: none; padding: 0; margin: 0;">Название</h3>
+                        <h3 id="view-name" style="text-align: left; border: none; padding: 0; margin: 0; display: flex; align-items: center;">Название</h3>
                     </div>
                     <div id="view-ruler" class="ruler-title">Статус: Готовность к мобилизации</div>
                     <div id="view-desc" class="history-text"></div>
@@ -230,8 +241,7 @@
 
                 <div class="action-buttons">
                     <button class="btn" style="width: 50%;" onclick="switchScreen('singleplayer-menu')">Назад</button>
-                    <button id="hoi-start-btn" class="btn" style="width: 50%; border-color: #4caf50; display: none;"
-                        onclick="redirectToMap()">Начать сценарий</button>
+                    <button id="hoi-start-btn" class="btn" style="width: 50%; border-color: #4caf50; display: none;" onclick="redirectToMap()">Начать сценарий</button>
                 </div>
             </div>
         </div>
@@ -250,71 +260,162 @@
     </div>
 
     <script>
-        // Стабильная ссылка на твой Gist (без привязки к версии)
-        const JSON_URL = 'https://gist.githubusercontent.com/whtine/3995ac119298d0b2fa1c9907f50e853b/raw/gistfile1.txt';
+        const FLAGS_DB_URL = 'https://gist.githubusercontent.com/whtine/8e3411c633b06ef24e23cbfea0a1818f/raw/eb69432c140b1e2b649a90363df46c08fcb2e6a0/gistfile1.txt';
+        const PROVINCES_DB_URL = 'https://gist.githubusercontent.com/whtine/3995ac119298d0b2fa1c9907f50e853b/raw/f3e9f1dd9a5ba6b9c5b314eae3ba96125acfa151/gistfile1.txt';
+
+        let countriesFlags = {};
+        let provincesData = [];
+
+        // Таблица перевода тегов из базы провинций в точные названия вашей базы флагов
+        const tagToRussianName = {
+            'sov': 'СССР', 'ger': 'Третий Рейх', 'yug': 'Югославия', 'tib': 'Тибет', 'slv': 'Словакия',
+            'man': 'Маньчжоу-го', 'usa': 'США', 'eng': 'Великобритания', 'fra': 'Франция', 'ita': 'Италия',
+            'jap': 'Япония', 'pol': 'Польша', 'fin': 'Финляндия', 'rom': 'Румыния', 'hun': 'Венгрия',
+            'bul': 'Болгария', 'cze': 'Чехословакия', 'sia': 'Сиам', 'hol': 'Нидерланды', 'ins': 'Нидерл.Индия',
+            'ast': 'Австралия', 'arg': 'Аргентина', 'afg': 'Афганистан', 'bel': 'Бельгия', 'bol': 'Боливия',
+            'bra': 'Бразилия', 'btn': 'Бутан', 'ven': 'Венесуэла', 'gmt': 'Гватемала', 'hon': 'Гондурас',
+            'gre': 'Греция', 'den': 'Дания', 'dom': 'Доминикана', 'yem': 'Йемен', 'est': 'Эстония',
+            'irq': 'Ирак', 'per': 'Иран', 'ice': 'Исландия', 'spr': 'Испания', 'can': 'Канада',
+            'chi': 'Китай', 'col': 'Колумбия', 'cos': 'Коста Рика', 'cub': 'Куба', 'lat': 'Латвия',
+            'lit': 'Литва', 'lux': 'Люксембург', 'mex': 'Мексика', 'nep': 'Непал', 'nic': 'Никарагуа',
+            'nzl': 'Новая Зеландия', 'nor': 'Норвегия', 'pan': 'Панама', 'pru': 'Перу', 'por': 'Португалия',
+            'sal': 'Сальвадор', 'sau': 'Саудовская Аравия', 'tur': 'Турция', 'ury': 'Уругвай',
+            'chm': 'Чили', 'swi': 'Швейцария', 'swe': 'Швеция', 'ecu': 'Эквадор', 'saf': 'ЮАР', 'jam': 'Ямайка'
+        };
+
+        function getHistoricalFlagUrl(countryName) {
+            if (!countryName) return 'https://flagcdn.com/w80/un.png';
+            const name = countryName.trim().toLowerCase();
+
+            const historicalDB = {
+                'ссср': 'https://i.postimg.cc/tC1SqWWn/Flag-of-the-Soviet-Union.jpg',
+                'третий рейх': 'https://i.postimg.cc/vBf8wchJ/Flag-of-Germany-(1935-1945).jpg',
+                'югославия': 'https://i.postimg.cc/zf336z4s/Flag-of-Yugoslavia-(1918-1941).jpg',
+                'маньчжоу-го': 'https://i.postimg.cc/wM4GWkJT/Flag-of-Manchukuo.jpg',
+                'тибет': 'https://i.postimg.cc/MZYx0kFy/Flag-of-Tibet.jpg',
+                'нидерл.индия': 'https://flagcdn.com/w80/id.png',
+                'сиам': 'https://flagcdn.com/w80/th.png',
+                'великобритания': 'https://flagcdn.com/w80/gb.png',
+                'сша': 'https://flagcdn.com/w80/us.png',
+                'франция': 'https://flagcdn.com/w80/fr.png',
+                'италия': 'https://flagcdn.com/w80/it.png',
+                'япония': 'https://flagcdn.com/w80/jp.png',
+                'испания': 'https://flagcdn.com/w80/es.png',
+                'чехословакия': 'https://flagcdn.com/w80/cz.png'
+            };
+
+            if (historicalDB[name]) return historicalDB[name];
+
+            const localCodes = {
+                'австралия': 'au', 'аргентина': 'ar', 'афганистан': 'af', 'белиз': 'bz', 'бельгия': 'be',
+                'болгария': 'bg', 'боливия': 'bo', 'бразилия': 'br', 'бутан': 'bt', 'венгрия': 'hu',
+                'венесуэла': 've', 'гватемала': 'gt', 'гондурас': 'hn', 'греция': 'gr', 'дания': 'dk',
+                'доминикана': 'do', 'йемен': 'ye', 'эстония': 'ee', 'ирак': 'iq', 'иран': 'ir',
+                'исландия': 'is', 'канада': 'ca', 'китай': 'cn', 'колумбия': 'co', 'коста рика': 'cr',
+                'куба': 'cu', 'латвия': 'lv', 'литва': 'lt', 'люксембург': 'lu', 'мексика': 'mx',
+                'непал': 'np', 'нидерланды': 'nl', 'никарагуа': 'ni', 'новая зеландия': 'nz', 'норвегия': 'no',
+                'панама': 'pa', 'перу': 'pe', 'польша': 'pl', 'португалия': 'pt', 'румыния': 'ro',
+                'сальвадор': 'sv', 'саудовская аравия': 'sa', 'словакия': 'sk', 'турция': 'tr', 'уругвай': 'uy',
+                'финляндия': 'fi', 'чили': 'cl', 'швейцария': 'ch', 'швеция': 'se', 'эквадор': 'ec',
+                'юар': 'za', 'ямайка': 'jm'
+            };
+
+            return localCodes[name] ? `https://flagcdn.com/w80/${localCodes[name]}.png` : 'https://flagcdn.com/w80/un.png';
+        }
 
         async function loadCountriesFromDB() {
             const sidebar = document.getElementById('sidebar-list');
             sidebar.innerHTML = '<p style="padding: 20px; text-align: center;">Загрузка штабов...</p>';
 
             try {
-                // Добавляем timestamp, чтобы браузер не кэшировал старые данные
-                const response = await fetch(`${JSON_URL}?t=${new Date().getTime()}`);
-                if (!response.ok) throw new Error("Не удалось загрузить данные из облака");
+                const timestamp = new Date().getTime();
+                const [flagsRes, provincesRes] = await Promise.all([
+                    fetch(`${FLAGS_DB_URL}?t=${timestamp}`),
+                    fetch(`${PROVINCES_DB_URL}?t=${timestamp}`)
+                ]);
 
-                const dbData = await response.json();
+                const flagsData = await flagsRes.json();
+                provincesData = await provincesRes.json();
 
-                const countriesMap = {};
-                dbData.forEach(item => {
-                    if (item.country && !countriesMap[item.country]) {
-                        countriesMap[item.country] = {
-                            name: item.country,
-                            color: item.color || '#cccccc'
+                // 1. Заполняем реестр флагов, переводя ключи в нижний регистр для стабильности
+                countriesFlags = {};
+                flagsData.forEach(item => {
+                    if (item.country) {
+                        countriesFlags[item.country.trim().toLowerCase()] = { 
+                            id: item.id || "0", 
+                            color: item.color || '#cccccc' 
                         };
                     }
                 });
 
-                sidebar.innerHTML = ''; 
+                const uniqueCountries = {};
 
-                const sortedCountries = Object.values(countriesMap).sort((a, b) => a.name.localeCompare(b.name));
+                // 2. Обрабатываем провинции
+                provincesData.forEach(item => {
+                    let searchName = "";
+                    
+                    // Если поле country содержит английский тег (например SOV), переводим его в "СССР"
+                    if (item.country && tagToRussianName[item.country.trim().toLowerCase()]) {
+                        searchName = tagToRussianName[item.country.trim().toLowerCase()];
+                    } else if (item.tag && tagToRussianName[item.tag.trim().toLowerCase()]) {
+                        searchName = tagToRussianName[item.tag.trim().toLowerCase()];
+                    } else if (item.country) {
+                        searchName = item.country.trim();
+                    }
 
-                if (sortedCountries.length === 0) {
-                    sidebar.innerHTML = '<p style="padding: 20px;">Страны не найдены.</p>';
+                    if (searchName) {
+                        const key = searchName.toLowerCase();
+                        
+                        // СТРОГАЯ ПРОВЕРКА: Если страны нет в твоей базе флагов — ИГНОРИРУЕМ ЕЁ
+                        if (countriesFlags[key]) {
+                            if (!uniqueCountries[searchName]) {
+                                const info = countriesFlags[key];
+                                const imgUrl = getHistoricalFlagUrl(searchName);
+
+                                uniqueCountries[searchName] = {
+                                    id: info.id,
+                                    name: searchName,
+                                    flagUrl: imgUrl,
+                                    color: info.color
+                                };
+                            }
+                        }
+                    }
+                });
+
+                const sortedList = Object.values(uniqueCountries).sort((a, b) => a.name.localeCompare(b.name));
+                sidebar.innerHTML = '';
+
+                if (sortedList.length === 0) {
+                    sidebar.innerHTML = '<p style="padding: 20px; text-align: center; color: #5a6368;">Нет доступных стран</p>';
                     return;
                 }
 
-                sortedCountries.forEach(country => {
+                sortedList.forEach(country => {
                     const btn = document.createElement('button');
                     btn.className = 'country-select-btn';
                     btn.style.borderLeft = `8px solid ${country.color}`;
 
                     btn.innerHTML = `
-                        <div style="width:30px; height:20px; background:${country.color}; margin-right:15px; border:1px solid #000"></div>
+                        <div style="width:35px; height:22px; margin-right:15px; border:1px solid #000; display:flex; overflow:hidden; background:#2c3235;">
+                            <img src="${country.flagUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://flagcdn.com/w80/un.png'">
+                        </div>
                         <span>${country.name}</span>
                     `;
 
                     btn.onclick = () => {
                         document.querySelectorAll('.country-select-btn').forEach(b => b.classList.remove('active-country'));
                         btn.classList.add('active-country');
-
                         localStorage.setItem('selectedHoiCountry', country.name);
                         localStorage.setItem('selectedHoiColor', country.color);
-
+                        localStorage.setItem('selectedHoiFlagUrl', country.flagUrl);
+                        localStorage.setItem('selectedHoiId', country.id);
                         showDetails(country);
                     };
                     sidebar.appendChild(btn);
                 });
-
-                console.log("Данные успешно синхронизированы");
-
             } catch (e) {
-                console.error("Ошибка загрузки:", e);
-                sidebar.innerHTML = `
-                <div class="error-msg">
-                    <b>Ошибка связи!</b><br>
-                    Не удалось получить данные из Gist.<br>
-                    <small>${e.message}</small>
-                </div>`;
+                sidebar.innerHTML = `<div class="error-msg">Ошибка сценария: ${e.message}</div>`;
             }
         }
 
@@ -326,32 +427,32 @@
             details.style.display = 'block';
             startBtn.style.display = 'block';
 
-            document.getElementById('view-name').innerText = country.name;
-            document.getElementById('view-desc').innerText =
-                `Штаб державы ${country.name} подтвердил получение данных. \n\nВсе провинции сектора будут окрашены в ваш национальный цвет (${country.color}). Сценарий "Близость бури" готов к инициализации.`;
+            document.getElementById('view-name').innerHTML = `
+                <img src="${country.flagUrl}" style="height:22px; width:35px; object-fit:cover; vertical-align:middle; margin-right:12px; border:1px solid #3a4145;" onerror="this.src='https://flagcdn.com/w80/un.png'"> 
+                ${country.name} <span style="font-size: 13px; color: #a89a7e; margin-left: 10px;">[ID: ${country.id}]</span>
+            `;
 
-            document.getElementById('big-flag-placeholder').innerHTML =
-                `<div style="width:90px; height:55px; background:${country.color}; border:2px solid #e9c46a; box-shadow: 0 4px 8px rgba(0,0,0,0.6)"></div>`;
+            document.getElementById('big-flag-placeholder').innerHTML = `
+                <div style="width:90px; height:55px; background:${country.color}; border:2px solid #e9c46a; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.6);">
+                    <img src="${country.flagUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://flagcdn.com/w80/un.png'">
+                </div>
+            `;
+
+            document.getElementById('view-desc').innerHTML =
+                `Разведданные по державе ${country.name} загружены. <br>Идентификатор реестра: <b>${country.id}</b>.<br>Цвет фракции на стратегической карте: <span style="color:${country.color}; font-weight:bold;">${country.color}</span>.<br><br>Генеральный штаб завершил стратегическое планирование. Все дивизии ожидают приказа о развертывании на границах.`;
         }
 
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-
-            if (screenId === 'country-select-menu') {
-                loadCountriesFromDB();
-            }
+            if (screenId === 'country-select-menu') loadCountriesFromDB();
         }
 
         function redirectToMap() {
+            localStorage.setItem('hoiProvincesDB', JSON.stringify(provincesData));
+            localStorage.setItem('hoiFlagsDB', JSON.stringify(countriesFlags));
             window.location.href = 'map.html';
         }
-
-        window.onload = () => {
-            if (document.getElementById('country-select-menu').classList.contains('active')) {
-                loadCountriesFromDB();
-            }
-        };
     </script>
 </body>
 
