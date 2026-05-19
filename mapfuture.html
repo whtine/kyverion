@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hearts of History: Театр Военных Действий</title>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --hoi-bg:       #1a1a18;
+            --hoi-panel:    #222220;
+            --hoi-panel2:   #2a2a27;
+            --hoi-border:   #4a4035;
+            --hoi-border2:  #6b5a3e;
+            --hoi-gold:     #c8a45a;
+            --hoi-gold2:    #e8c87a;
+            --hoi-text:     #c8bda0;
+            --hoi-text2:    #8a7d68;
+            --hoi-red:      #8b2020;
+            --hoi-red2:     #b83030;
+            --hoi-green:    #4a7a3a;
+            --hoi-blue:     #3a5a8a;
+            --hoi-shadow:   rgba(0,0,0,0.7);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--hoi-bg);
+            color: var(--hoi-text);
+            font-family: 'Special Elite', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* ===== TOP BAR ===== */
+        .game-header {
+            height: 56px;
+            background: linear-gradient(180deg, #2e2b24 0%, #1e1c17 60%, #161410 100%);
+            border-bottom: 2px solid var(--hoi-border2);
+            display: flex;
+            align-items: stretch;
+            padding: 0;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(200,164,90,0.15);
+            z-index: 10;
+            position: relative;
+        }
+
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--hoi-gold), transparent);
+            opacity: 0.5;
+        }
+
+        .country-info-block {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding: 0 16px 0 12px;
+            border-right: 1px solid var(--hoi-border);
+            background: rgba(0,0,0,0.2);
+            min-width: 220px;
+        }
+
+        .country-flag-badge {
+            width: 42px;
+            height: 28px;
+            border: 1px solid var(--hoi-border2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            background: #111;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.8), inset 0 0 6px rgba(0,0,0,0.6);
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+
+        .country-name {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--hoi-gold2);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+        }
+
+        .game-stats {
+            display: flex;
+            align-items: stretch;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .stat-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 14px;
+            font-size: 12px;
+            color: var(--hoi-text);
+            border-right: 1px solid var(--hoi-border);
+            letter-spacing: 0.5px;
+            transition: background 0.15s;
+            cursor: default;
+        }
+
+        .stat-badge:first-child { border-left: 1px solid var(--hoi-border); }
+
+        .stat-badge:hover {
+            background: rgba(200,164,90,0.07);
+        }
+
+        .stat-icon {
+            font-size: 15px;
+            line-height: 1;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+        }
+
+        .stat-label {
+            color: var(--hoi-text2);
+            font-size: 10px;
+            display: block;
+            line-height: 1;
+        }
+
+        .stat-value {
+            color: var(--hoi-gold);
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            display: block;
+            line-height: 1;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            gap: 8px;
+            border-left: 1px solid var(--hoi-border);
+        }
+
+        .exit-btn {
+            background: linear-gradient(180deg, #6a1a1a 0%, #4a1010 100%);
+            color: #e8c0c0;
+            border: 1px solid #7a2a2a;
+            border-bottom-color: #3a0808;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            box-shadow: inset 0 1px 0 rgba(255,150,150,0.1), 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .exit-btn:hover {
+            background: linear-gradient(180deg, #8a2222 0%, #5a1515 100%);
+            border-color: #9a3a3a;
+            color: #fff;
+        }
+
+        /* ===== GAME THEATER ===== */
+        .main-theater {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ===== LEFT SIDEBAR ===== */
+        .control-sidebar {
+            width: 340px;
+            background: linear-gradient(180deg, #222220 0%, #1c1c1a 100%);
+            border-right: 2px solid var(--hoi-border);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            box-sizing: border-box;
+            z-index: 5;
+            box-shadow: 3px 0 12px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--hoi-gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.4);
+            border-bottom: 1px solid var(--hoi-border);
+            margin: 0;
+        }
+
+        .inspector-card {
+            padding: 12px 14px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--hoi-border);
+            margin: 8px;
+            border-radius: 2px;
+        }
+
+        .inspector-card > div:first-child {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            color: var(--hoi-gold2);
+            margin-bottom: 6px;
+            text-transform: capitalize;
+        }
+
+        .inspector-card > div:last-child {
+            font-size: 11px;
+            color: var(--hoi-text2);
+            line-height: 1.4;
+        }
+
+        .tool-box {
+            padding: 0 8px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .map-action-btn {
+            background: linear-gradient(180deg, #3a3a35 0%, #2a2a25 100%);
+            color: var(--hoi-text);
+            border: 1px solid var(--hoi-border);
+            border-bottom-color: #2a2515;
+            padding: 8px 12px;
+            font-family: 'Special Elite', serif;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.4);
+            border-radius: 2px;
+        }
+
+        .map-action-btn:hover {
+            background: linear-gradient(180deg, #4a4a45 0%, #3a3a35 100%);
+            color: var(--hoi-gold);
+            border-color: var(--hoi-border2);
+        }
+
+        .map-action-btn:active {
+            background: linear-gradient(180deg, #2a2a25 0%, #1a1a15 100%);
+        }
+
+        .resource-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            padding: 8px;
+        }
+
+        .resource-item {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--hoi-border);
+            padding: 8px;
+            border-radius: 2px;
+            text-align: center;
+            font-size: 10px;
+        }
+
+        .resource-icon {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .resource-value {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            color: var(--hoi-gold);
+            font-weight: 600;
+        }
+
+        /* BUILD PANEL */
+        .build-section {
+            padding: 0;
+            border-top: 1px solid var(--hoi-border);
+        }
+
+        .build-items {
+            padding: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .build-btn {
+            background: linear-gradient(180deg, #2a3a2a 0%, #1a2a1a 100%);
+            border: 1px solid #4a6a4a;
+            color: #b8d8b8;
+            padding: 8px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.15s;
+            text-align: center;
+        }
+
+        .build-btn:hover {
+            background: linear-gradient(180deg, #3a4a3a 0%, #2a3a2a 100%);
+            border-color: #6a8a6a;
+        }
+
+        .build-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ===== CENTER MAP ===== */
+        .map-viewport {
+            flex: 1;
+            background: #0a0a08;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .map-viewport:active {
+            cursor: grabbing;
+        }
+
+        .infinite-wrapper {
+            position: absolute;
+            transform-origin: 0 0;
+            transition: none;
+        }
+
+        .map-clone {
+            position: relative;
+        }
+
+        .map-clone svg {
+            display: block;
+        }
+
+        .province {
+            cursor: pointer;
+            stroke: #1a1a18;
+            stroke-width: 0.5;
+            transition: opacity 0.1s;
+        }
+
+        .province:hover {
+            opacity: 0.8;
+            filter: brightness(1.1);
+        }
+
+        .province.selected {
+            stroke: var(--hoi-gold2);
+            stroke-width: 2;
+            filter: brightness(1.2);
+        }
+
+        .loading-text {
+            color: var(--hoi-text2);
+            text-align: center;
+            padding-top: 40%;
+        }
+
+        /* ===== RIGHT SIDEBAR ===== */
+        .log-sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #222220 0%, #1c1c1a 100%);
+            border-left: 2px solid var(--hoi-border);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            box-sizing: border-box;
+            z-index: 5;
+            box-shadow: -3px 0 12px rgba(0,0,0,0.5);
+        }
+
+        .ticker-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            border-top: 1px solid var(--hoi-border);
+        }
+
+        .ticker-entry {
+            font-size: 10px;
+            color: var(--hoi-text2);
+            line-height: 1.4;
+            margin-bottom: 4px;
+            padding: 4px;
+            border-left: 2px solid var(--hoi-border);
+            padding-left: 8px;
+        }
+
+        .ticker-time {
+            color: var(--hoi-gold);
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* ===== BOTTOM BAR ===== */
+        .bottom-bar {
+            height: 28px;
+            background: linear-gradient(180deg, #1e1c17 0%, #161410 100%);
+            border-top: 1px solid var(--hoi-border2);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 10px;
+            color: var(--hoi-text2);
+            box-shadow: inset 0 1px 0 rgba(200,164,90,0.1);
+        }
+
+        /* MODAL DIALOG */
+        .modal-dialog {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-dialog.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(180deg, #2a2a27 0%, #1a1a17 100%);
+            border: 2px solid var(--hoi-border2);
+            box-shadow: 0 0 20px rgba(0,0,0,0.9), inset 0 1px 0 rgba(200,164,90,0.2);
+            border-radius: 2px;
+            min-width: 380px;
+            max-width: 500px;
+        }
+
+        .modal-header {
+            background: rgba(0,0,0,0.3);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--hoi-border);
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            color: var(--hoi-gold2);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .modal-body {
+            padding: 16px;
+            color: var(--hoi-text);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid var(--hoi-border);
+            justify-content: flex-end;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 8px 16px;
+            border: 1px solid var(--hoi-border);
+            border-radius: 2px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.15s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(180deg, #4a6a4a 0%, #2a4a2a 100%);
+            color: #b8d8b8;
+            border-color: #6a8a6a;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(180deg, #5a7a5a 0%, #3a5a3a 100%);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(180deg, #3a3a35 0%, #2a2a25 100%);
+            color: var(--hoi-text);
+            border-color: var(--hoi-border);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(180deg, #4a4a45 0%, #3a3a35 100%);
+        }
+
+        .build-info {
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            margin: 8px 0;
+            border-left: 2px solid var(--hoi-gold);
+            font-size: 11px;
+        }
+
+        .build-info strong {
+            color: var(--hoi-gold);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--hoi-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--hoi-border2);
+        }
+
+        .province-owner {
+            font-size: 10px;
+            color: var(--hoi-text2);
+            margin-top: 6px;
+        }
+
+        .army-unit {
+            background: rgba(0,0,0,0.3);
+            padding: 6px;
+            margin: 4px 0;
+            border-left: 2px solid var(--hoi-blue);
+            font-size: 10px;
+        }
+
+        .army-unit strong {
+            color: var(--hoi-blue);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP HEADER -->
+    <div class="game-header">
+        <div class="country-info-block">
+            <div id="player-flag" class="country-flag-badge">🏳️</div>
+            <div id="player-country" class="country-name">Загрузка…</div>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat-badge">
+                <span class="stat-icon">📅</span>
+                <div>
+                    <span class="stat-label">Дата</span>
+                    <span class="stat-value" id="date-display">1 СЕН 1939</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-icon">💰</span>
+                <div>
+                    <span class="stat-label">Производство</span>
+                    <span class="stat-value" id="prod-value">0</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-icon">⚙️</span>
+                <div>
+                    <span class="stat-label">Заводы</span>
+                    <span class="stat-value" id="factories-count">0</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-icon">⚔️</span>
+                <div>
+                    <span class="stat-label">Дивизии</span>
+                    <span class="stat-value" id="army-count">0</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-icon">👤</span>
+                <div>
+                    <span class="stat-label">Провинции</span>
+                    <span class="stat-value" id="provinces-count">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="exit-btn" onclick="exitToMenu()">◀ В Меню</button>
+        </div>
+    </div>
+
+    <!-- GAME THEATER -->
+    <div class="main-theater">
+
+        <!-- LEFT SIDEBAR -->
+        <div class="control-sidebar">
+            <div class="panel-title">⚙️ Управление Территорией</div>
+            <div class="inspector-card">
+                <div id="selected-region-name">Регион не выбран</div>
+                <div id="selected-region-status">Кликните по территории для управления.</div>
+                <div class="province-owner" id="region-owner-info"></div>
+            </div>
+
+            <div class="panel-title" style="margin-top: 8px;">📊 Ресурсы Провинции</div>
+            <div class="resource-display">
+                <div class="resource-item">
+                    <div class="resource-icon">⚙️</div>
+                    <div>Заводы</div>
+                    <div class="resource-value" id="region-factories">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-icon">⚔️</div>
+                    <div>Дивизии</div>
+                    <div class="resource-value" id="region-army">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-icon">🛡️</div>
+                    <div>Форты</div>
+                    <div class="resource-value" id="region-forts">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-icon">✈️</div>
+                    <div>Аэропорты</div>
+                    <div class="resource-value" id="region-airports">0</div>
+                </div>
+            </div>
+
+            <div class="panel-title">🏗️ Строительство</div>
+            <div class="build-section">
+                <div class="build-items">
+                    <button class="build-btn" onclick="openBuildDialog('factory')">⚙️ Завод<br><span style="font-size:9px">50 ⭐</span></button>
+                    <button class="build-btn" onclick="openBuildDialog('fort')">🛡️ Форт<br><span style="font-size:9px">30 ⭐</span></button>
+                    <button class="build-btn" onclick="openBuildDialog('airport')">✈️ Аэропорт<br><span style="font-size:9px">40 ⭐</span></button>
+                    <button class="build-btn" onclick="openBuildDialog('radar')">📡 Радар<br><span style="font-size:9px">25 ⭐</span></button>
+                </div>
+            </div>
+
+            <div class="panel-title">⚔️ Армия</div>
+            <div class="tool-box">
+                <button class="map-action-btn" onclick="openRecruitDialog()">+ Набрать Дивизию (20 ⭐)</button>
+                <button class="map-action-btn" onclick="moveArmy()">↔️ Переместить Войска</button>
+            </div>
+
+            <div id="army-list" style="padding: 8px; font-size: 10px;"></div>
+        </div>
+
+        <!-- CENTER MAP -->
+        <div class="map-viewport" id="viewport">
+            <div class="infinite-wrapper" id="panzoom-target">
+                <div class="map-clone" id="primary-map-container">
+                    <p class="loading-text">Загрузка тактической карты…</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="log-sidebar">
+            <div class="panel-title">📰 Хроника Событий</div>
+            <div class="ticker-box" id="log-ticker">
+                <div class="ticker-entry"><span class="ticker-time">[Начало]</span> Штаб развернут. Готово к управлению.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM STATUS -->
+    <div class="bottom-bar">
+        <span>Hearts of History &nbsp;|&nbsp; <strong>Театр Военных Действий v2.0</strong></span>
+        <span style="margin-left: auto;">Колёсико — зум &nbsp;·&nbsp; ЛКМ+тянуть — перемещение &nbsp;·&nbsp; Кликните по территории</span>
+    </div>
+
+    <!-- BUILD MODAL -->
+    <div class="modal-dialog" id="build-modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-title">Постройка</div>
+            <div class="modal-body">
+                <div id="modal-body-content"></div>
+                <div class="build-info" id="build-info"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeBuildModal()">Отмена</button>
+                <button class="btn-primary" onclick="confirmBuild()">Построить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECRUIT MODAL -->
+    <div class="modal-dialog" id="recruit-modal">
+        <div class="modal-content">
+            <div class="modal-header">⚔️ Набор Дивизии</div>
+            <div class="modal-body">
+                <p>Выберите провинцию, в которой набрать войска:</p>
+                <div id="recruit-provinces" style="max-height: 200px; overflow-y: auto;"></div>
+                <div class="build-info">
+                    <strong>Стоимость:</strong> 20 ⭐ за дивизию<br>
+                    <strong>Время:</strong> 1 день
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeRecruitModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MAP_URL = 'https://gist.githubusercontent.com/whtine/75e8ff05c613e288f6d20017b2c5b035/raw/d8c957fc238b5e66e88b88c5004ea57d5d984938/gistfile1.txt';
+        const DB_URL  = 'https://gist.githubusercontent.com/whtine/3995ac119298d0b2fa1c9907f50e853b/raw/f2544d05cc756a3e93a1c898ec2f7f2d49c41331/gistfile1.txt';
+
+        // GAME STATE
+        const gameState = {
+            selectedProvince: null,
+            playerCountry: 'Аргентина',
+            playerColor: '#58a6ff',
+            playerFlagUrl: 'https://flagcdn.com/w80/un.png',
+            date: new Date(1939, 8, 1),
+            production: 0,
+            factories: 0,
+            divisions: 0,
+            ownedProvinces: new Set(),
+            
+            provinces: {},
+            armies: {},
+            
+            currentBuildType: null,
+        };
+
+        // INITIALIZE GAME
+        async function initGame() {
+            try {
+                gameState.playerCountry = localStorage.getItem('selectedHoiCountry') || 'Аргентина';
+                gameState.playerColor = localStorage.getItem('selectedHoiColor') || '#58a6ff';
+                gameState.playerFlagUrl = localStorage.getItem('selectedHoiFlagUrl') || 'https://flagcdn.com/w80/un.png';
+
+                document.getElementById('player-country').innerText = gameState.playerCountry;
+                const flagElement = document.getElementById('player-flag');
+                flagElement.style.borderColor = gameState.playerColor;
+                flagElement.innerHTML = `<img src="${gameState.playerFlagUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+
+                const cacheBuster = `?t=${new Date().getTime()}`;
+                const [dbResponse, svgResponse] = await Promise.all([
+                    fetch(DB_URL + cacheBuster),
+                    fetch(MAP_URL + cacheBuster)
+                ]);
+
+                const dbData = await dbResponse.json();
+                const svgText = await svgResponse.text();
+
+                document.getElementById('primary-map-container').innerHTML = svgText;
+
+                // Remove stroke from SVG to blend provinces together
+                const svg = document.querySelector('.map-clone svg');
+                if (svg) {
+                    svg.querySelectorAll('path').forEach(path => {
+                        path.setAttribute('stroke', 'none');
+                    });
+                }
+
+                dbData.forEach(item => {
+                    if (item.id) {
+                        gameState.provinces[item.id] = {
+                            id: item.id,
+                            name: item.name || 'Провинция',
+                            country: item.country || 'Нейтралы',
+                            color: item.color || '#cccccc',
+                            factories: Math.floor(Math.random() * 3),
+                            forts: 0,
+                            airports: 0,
+                            radars: 0,
+                            divisions: Math.floor(Math.random() * 5),
+                            owner: item.country === gameState.playerCountry ? 'player' : 'enemy'
+                        };
+
+                        if (item.country === gameState.playerCountry) {
+                            gameState.ownedProvinces.add(item.id);
+                        }
+                    }
+                });
+
+                setupProvinceClicks();
+                setupNativeMapControl();
+                updateGameUI();
+                addLogEntry('Игра начата. Штаб развернут.', 'system');
+
+            } catch (err) {
+                console.error('Ошибка:', err);
+            }
+        }
+
+        // SETUP PROVINCE CLICKS
+        function setupProvinceClicks() {
+            const provinces = document.querySelectorAll('.province');
+            provinces.forEach(prov => {
+                const data = gameState.provinces[prov.id];
+                if (data) {
+                    prov.style.fill = data.color;
+                    prov.style.stroke = 'none';
+                    
+                    prov.onclick = (e) => {
+                        e.stopPropagation();
+                        selectProvince(prov.id);
+                    };
+
+                    prov.onmouseover = () => {
+                        if (gameState.selectedProvince !== prov.id) {
+                            prov.style.opacity = '0.8';
+                        }
+                    };
+
+                    prov.onmouseout = () => {
+                        if (gameState.selectedProvince !== prov.id) {
+                            prov.style.opacity = '1';
+                        }
+                    };
+                }
+            });
+        }
+
+        // SELECT PROVINCE
+        function selectProvince(provinceId) {
+            const oldSelected = document.getElementById(gameState.selectedProvince);
+            if (oldSelected) {
+                oldSelected.classList.remove('selected');
+            }
+
+            gameState.selectedProvince = provinceId;
+            const prov = document.getElementById(provinceId);
+            if (prov) {
+                prov.classList.add('selected');
+            }
+
+            const data = gameState.provinces[provinceId];
+            if (data) {
+                document.getElementById('selected-region-name').innerText = data.name;
+                document.getElementById('selected-region-status').innerHTML = 
+                    `<b style="color:#c8a45a">${data.country}</b>`;
+                document.getElementById('region-owner-info').innerHTML = 
+                    `${data.owner === 'player' ? '✓ Ваша территория' : '✗ Враждебная территория'}`;
+                
+                document.getElementById('region-factories').innerText = data.factories;
+                document.getElementById('region-army').innerText = data.divisions;
+                document.getElementById('region-forts').innerText = data.forts;
+                document.getElementById('region-airports').innerText = data.airports;
+
+                addLogEntry(`Разведка территории ${data.name}. Владелец: ${data.country}`, 'intelligence');
+            }
+        }
+
+        // UPDATE UI
+        function updateGameUI() {
+            // Count owned provinces
+            const ownedCount = gameState.ownedProvinces.size;
+            let totalFactories = 0;
+            let totalDivisions = 0;
+
+            gameState.ownedProvinces.forEach(provId => {
+                const prov = gameState.provinces[provId];
+                if (prov) {
+                    totalFactories += prov.factories;
+                    totalDivisions += prov.divisions;
+                }
+            });
+
+            gameState.factories = totalFactories;
+            gameState.divisions = totalDivisions;
+            gameState.production = totalFactories * 5;
+
+            document.getElementById('date-display').innerText = formatDate(gameState.date);
+            document.getElementById('factories-count').innerText = gameState.factories;
+            document.getElementById('army-count').innerText = gameState.divisions;
+            document.getElementById('provinces-count').innerText = ownedCount;
+            document.getElementById('prod-value').innerText = gameState.production;
+
+            updateArmyList();
+        }
+
+        function updateArmyList() {
+            const armyList = document.getElementById('army-list');
+            armyList.innerHTML = '<div style="color:var(--hoi-gold);margin-bottom:4px;"><strong>Войска:</strong></div>';
+            
+            let totalDivisions = 0;
+            gameState.ownedProvinces.forEach(provId => {
+                const prov = gameState.provinces[provId];
+                if (prov && prov.divisions > 0) {
+                    armyList.innerHTML += `
+                        <div class="army-unit">
+                            <strong>${prov.name}:</strong> ${prov.divisions} дивизий
+                        </div>
+                    `;
+                    totalDivisions += prov.divisions;
+                }
+            });
+        }
+
+        // BUILD DIALOG
+        function openBuildDialog(type) {
+            if (!gameState.selectedProvince) {
+                alert('Выберите провинцию!');
+                return;
+            }
+
+            const prov = gameState.provinces[gameState.selectedProvince];
+            if (prov.owner !== 'player') {
+                alert('Можно строить только на своей территории!');
+                return;
+            }
+
+            gameState.currentBuildType = type;
+            const modal = document.getElementById('build-modal');
+            
+            const buildInfo = {
+                factory: { name: '⚙️ Завод', cost: 50, time: '3 дня', effect: '+5 производства' },
+                fort: { name: '🛡️ Форт', cost: 30, time: '2 дня', effect: '+20% защиты' },
+                airport: { name: '✈️ Аэропорт', cost: 40, time: '2 дня', effect: '+10 авиаслотов' },
+                radar: { name: '📡 Радар', cost: 25, time: '1 день', effect: '+обнаружение' }
+            };
+
+            const info = buildInfo[type];
+            document.getElementById('modal-title').innerText = info.name;
+            document.getElementById('modal-body-content').innerHTML = `
+                <p>Постройка на территории: <strong>${prov.name}</strong></p>
+                <p>Тип сооружения: <strong>${info.name}</strong></p>
+                <p>Эффект: <strong style="color:var(--hoi-gold)">${info.effect}</strong></p>
+            `;
+            document.getElementById('build-info').innerHTML = `
+                <strong>Стоимость:</strong> ${info.cost} ⭐ производства<br>
+                <strong>Время строительства:</strong> ${info.time}<br>
+                <strong>Мои ресурсы:</strong> ${gameState.production} ⭐
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeBuildModal() {
+            document.getElementById('build-modal').classList.remove('active');
+        }
+
+        function confirmBuild() {
+            if (!gameState.selectedProvince) return;
+
+            const prov = gameState.provinces[gameState.selectedProvince];
+            const costs = { factory: 50, fort: 30, airport: 40, radar: 25 };
+            const cost = costs[gameState.currentBuildType];
+
+            if (gameState.production < cost) {
+                alert('Недостаточно производства!');
+                return;
+            }
+
+            // Build
+            switch(gameState.currentBuildType) {
+                case 'factory':
+                    prov.factories++;
+                    addLogEntry(`На ${prov.name} построен завод.`, 'build');
+                    break;
+                case 'fort':
+                    prov.forts++;
+                    addLogEntry(`На ${prov.name} построено укрепление.`, 'build');
+                    break;
+                case 'airport':
+                    prov.airports++;
+                    addLogEntry(`На ${prov.name} построен аэропорт.`, 'build');
+                    break;
+                case 'radar':
+                    prov.radars++;
+                    addLogEntry(`На ${prov.name} установлена радарная станция.`, 'build');
+                    break;
+            }
+
+            updateGameUI();
+            selectProvince(gameState.selectedProvince);
+            closeBuildModal();
+        }
+
+        // RECRUIT DIALOG
+        function openRecruitDialog() {
+            const modal = document.getElementById('recruit-modal');
+            const container = document.getElementById('recruit-provinces');
+            container.innerHTML = '';
+
+            gameState.ownedProvinces.forEach(provId => {
+                const prov = gameState.provinces[provId];
+                const btn = document.createElement('button');
+                btn.className = 'map-action-btn';
+                btn.style.margin = '4px';
+                btn.innerHTML = `${prov.name} (${prov.divisions} дивизий) — Набрать`;
+                btn.onclick = () => {
+                    if (gameState.production >= 20) {
+                        prov.divisions++;
+                        gameState.production -= 20;
+                        updateGameUI();
+                        addLogEntry(`В ${prov.name} набрана новая дивизия.`, 'recruit');
+                        closeRecruitModal();
+                    } else {
+                        alert('Недостаточно производства (нужно 20 ⭐)!');
+                    }
+                };
+                container.appendChild(btn);
+            });
+
+            modal.classList.add('active');
+        }
+
+        function closeRecruitModal() {
+            document.getElementById('recruit-modal').classList.remove('active');
+        }
+
+        // MOVE ARMY
+        function moveArmy() {
+            alert('Функция перемещения войск: выберите исходную и целевую провинции.\n\n(Реализуется в обновлении)');
+        }
+
+        // MAP CONTROLS
+        function setupNativeMapControl() {
+            const viewport = document.getElementById('viewport');
+            const target = document.getElementById('panzoom-target');
+
+            let scale = 1;
+            let x = 0;
+            let y = 0;
+            let isDragging = false;
+            let startX, startY;
+
+            function updateTransform() {
+                target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+            }
+            updateTransform();
+
+            viewport.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.control-sidebar') || e.target.closest('.log-sidebar')) return;
+                isDragging = true;
+                startX = e.clientX - x;
+                startY = e.clientY - y;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                x = e.clientX - startX;
+                y = e.clientY - startY;
+                updateTransform();
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            viewport.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomStep = 0.15;
+                const rect = viewport.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                const mapX = (mouseX - x) / scale;
+                const mapY = (mouseY - y) / scale;
+
+                if (e.deltaY < 0) { if (scale < 10) scale *= (1 + zoomStep); }
+                else { if (scale > 0.15) scale /= (1 + zoomStep); }
+
+                x = mouseX - mapX * scale;
+                y = mouseY - mapY * scale;
+                updateTransform();
+            }, { passive: false });
+        }
+
+        // UTILITIES
+        function formatDate(date) {
+            const months = ['ЯНВ', 'ФЕВ', 'МАР', 'АПР', 'МАЙ', 'ИЮН', 'ИЮЛ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        function addLogEntry(message, type = 'normal') {
+            const ticker = document.getElementById('log-ticker');
+            const entry = document.createElement('div');
+            entry.className = 'ticker-entry';
+            const time = gameState.date.toLocaleTimeString('ru-RU');
+            entry.innerHTML = `<span class="ticker-time">[${type.toUpperCase()}]</span> ${message}`;
+            ticker.appendChild(entry);
+            ticker.scrollTop = ticker.scrollHeight;
+        }
+
+        function exitToMenu() {
+            window.location.href = 'game.html';
+        }
+
+        // GAME LOOP
+        setInterval(() => {
+            gameState.date.setDate(gameState.date.getDate() + 1);
+            updateGameUI();
+            
+            // Random events
+            if (Math.random() < 0.05) {
+                const events = [
+                    'Выявлена диверсия в производстве.',
+                    'Героические труженики повысили производительность!',
+                    'Восстание сепаратистов в провинции.',
+                    'Дипломатический скандал с соседней державой.'
+                ];
+                addLogEntry(events[Math.floor(Math.random() * events.length)], 'event');
+            }
+        }, 1000);
+
+        window.onload = initGame;
+    </script>
+</body>
+
+</html>
