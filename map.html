@@ -5,14 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hearts of History: Театр Военных Действий</title>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --hoi-bg:       #1a1a18;
+            --hoi-panel:    #222220;
+            --hoi-panel2:   #2a2a27;
+            --hoi-border:   #4a4035;
+            --hoi-border2:  #6b5a3e;
+            --hoi-gold:     #c8a45a;
+            --hoi-gold2:    #e8c87a;
+            --hoi-text:     #c8bda0;
+            --hoi-text2:    #8a7d68;
+            --hoi-red:      #8b2020;
+            --hoi-red2:     #b83030;
+            --hoi-green:    #4a7a3a;
+            --hoi-blue:     #3a5a8a;
+            --hoi-shadow:   rgba(0,0,0,0.7);
+        }
+
+        * { box-sizing: border-box; }
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #0e1112;
-            color: #d1c2a5;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--hoi-bg);
+            color: var(--hoi-text);
+            font-family: 'Special Elite', 'Courier New', monospace;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -20,77 +40,150 @@
             user-select: none;
         }
 
-        /* 1. ТОП-БАР */
+        /* ===== TOP BAR ===== */
         .game-header {
-            height: 50px;
-            background: linear-gradient(to bottom, #222729, #181b1d);
-            border-bottom: 3px solid #3a4145;
+            height: 56px;
+            background: linear-gradient(180deg, #2e2b24 0%, #1e1c17 60%, #161410 100%);
+            border-bottom: 2px solid var(--hoi-border2);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            align-items: stretch;
+            padding: 0;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(200,164,90,0.15);
             z-index: 10;
+            position: relative;
         }
 
+        /* Декоративная линия поверх */
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--hoi-gold), transparent);
+            opacity: 0.5;
+        }
+
+        /* БЛОК СТРАНЫ */
         .country-info-block {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 0;
+            padding: 0 16px 0 12px;
+            border-right: 1px solid var(--hoi-border);
+            background: rgba(0,0,0,0.2);
+            min-width: 220px;
         }
 
         .country-flag-badge {
-            width: 35px;
-            height: 22px;
-            border: 1px solid #e9c46a;
+            width: 42px;
+            height: 28px;
+            border: 1px solid var(--hoi-border2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
-            background: #111415;
+            background: #111;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.8), inset 0 0 6px rgba(0,0,0,0.6);
+            flex-shrink: 0;
+            margin-right: 10px;
         }
 
         .country-name {
-            font-size: 16px;
-            font-weight: bold;
-            color: #e9c46a;
-            letter-spacing: 1px;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--hoi-gold2);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
         }
 
+        /* РЕСУРСЫ В ЦЕНТРЕ */
         .game-stats {
             display: flex;
-            gap: 20px;
+            align-items: stretch;
+            flex: 1;
+            justify-content: center;
         }
 
         .stat-badge {
-            background: #111415;
-            border: 1px solid #4f585d;
-            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 14px;
+            font-size: 12px;
+            color: var(--hoi-text);
+            border-right: 1px solid var(--hoi-border);
+            letter-spacing: 0.5px;
+            transition: background 0.15s;
+            cursor: default;
+        }
+
+        .stat-badge:first-child { border-left: 1px solid var(--hoi-border); }
+
+        .stat-badge:hover {
+            background: rgba(200,164,90,0.07);
+        }
+
+        .stat-icon {
+            font-size: 15px;
+            line-height: 1;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+        }
+
+        .stat-label {
+            color: var(--hoi-text2);
+            font-size: 10px;
+            display: block;
+            line-height: 1;
+        }
+
+        .stat-value {
+            color: var(--hoi-gold);
+            font-family: 'Cinzel', serif;
             font-size: 13px;
-            color: #fff;
+            display: block;
+            line-height: 1;
+            font-weight: 600;
+        }
+
+        /* КНОПКА ВЫХОДА */
+        .header-right {
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            gap: 8px;
+            border-left: 1px solid var(--hoi-border);
         }
 
         .exit-btn {
-            background: #721c24;
-            color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 5px 15px;
+            background: linear-gradient(180deg, #6a1a1a 0%, #4a1010 100%);
+            color: #e8c0c0;
+            border: 1px solid #7a2a2a;
+            border-bottom-color: #3a0808;
+            padding: 6px 16px;
             cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
             font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            box-shadow: inset 0 1px 0 rgba(255,150,150,0.1), 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.15s;
+            white-space: nowrap;
         }
 
         .exit-btn:hover {
-            background: #af232f;
+            background: linear-gradient(180deg, #8a2222 0%, #5a1515 100%);
+            border-color: #9a3a3a;
             color: #fff;
         }
 
-        /* 2. ИГРОВАЯ ЗОНА */
+        /* ===== GAME THEATER ===== */
         .main-theater {
             display: flex;
             flex: 1;
@@ -98,83 +191,153 @@
             position: relative;
         }
 
-        /* ЛЕВАЯ ПАНЕЛЬ */
+        /* ===== ЛЕВАЯ ПАНЕЛЬ ===== */
         .control-sidebar {
-            width: 300px;
-            background: #15191b;
-            border-right: 2px solid #3a4145;
+            width: 268px;
+            background: linear-gradient(180deg, #222220 0%, #1c1c1a 100%);
+            border-right: 2px solid var(--hoi-border);
             display: flex;
             flex-direction: column;
-            padding: 15px;
+            padding: 0;
             box-sizing: border-box;
             z-index: 5;
+            box-shadow: 3px 0 12px rgba(0,0,0,0.5);
         }
 
+        /* Заголовок секции */
         .panel-title {
-            font-size: 14px;
-            color: #e9c46a;
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--hoi-gold);
             text-transform: uppercase;
-            border-bottom: 1px solid #3a4145;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            padding: 10px 14px 8px;
+            background: linear-gradient(180deg, #2a2822 0%, #222018 100%);
+            border-bottom: 1px solid var(--hoi-border2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
+        .panel-title::before {
+            content: '';
+            display: block;
+            width: 3px;
+            height: 12px;
+            background: var(--hoi-gold);
+            flex-shrink: 0;
+        }
+
+        /* Карточка инспектора */
         .inspector-card {
-            background: #1b2022;
-            border: 1px solid #4f585d;
-            padding: 10px;
-            margin-bottom: 15px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--hoi-border);
+            border-left: 3px solid var(--hoi-border2);
+            padding: 12px 14px;
+            margin: 12px 12px 0;
             font-size: 12px;
+            position: relative;
         }
 
+        /* Декоративные уголки */
+        .inspector-card::before,
+        .inspector-card::after {
+            content: '';
+            position: absolute;
+            width: 6px; height: 6px;
+            border-color: var(--hoi-gold);
+            border-style: solid;
+        }
+        .inspector-card::before {
+            top: -1px; right: -1px;
+            border-width: 1px 1px 0 0;
+        }
+        .inspector-card::after {
+            bottom: -1px; right: -1px;
+            border-width: 0 1px 1px 0;
+        }
+
+        #selected-region-name {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        #selected-region-status {
+            color: var(--hoi-text2);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        /* Кнопки инструментов */
         .tool-box {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 0;
+            padding: 10px 12px;
         }
 
         .map-action-btn {
-            background: #24292c;
-            border: 1px solid #4f585d;
-            color: #d1c2a5;
-            padding: 10px;
+            background: linear-gradient(180deg, #2c2a25 0%, #242220 100%);
+            border: 1px solid var(--hoi-border);
+            border-top: none;
+            color: var(--hoi-text);
+            padding: 9px 14px;
             cursor: pointer;
             text-align: left;
+            font-family: 'Special Elite', monospace;
             font-size: 12px;
-            font-weight: bold;
+            letter-spacing: 0.3px;
+            transition: all 0.12s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .map-action-btn:first-child {
+            border-top: 1px solid var(--hoi-border);
+        }
+
+        .map-action-btn::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 2px;
+            background: transparent;
+            transition: background 0.12s;
         }
 
         .map-action-btn:hover {
-            border-color: #e9c46a;
-            color: #fff;
-            background: #2e3539;
+            background: linear-gradient(180deg, #38342c 0%, #2c2820 100%);
+            border-color: var(--hoi-border2);
+            color: var(--hoi-gold2);
         }
 
-        /* ЦЕНТР: ОКНО ПРОСМОТРА КАРТЫ */
+        .map-action-btn:hover::before {
+            background: var(--hoi-gold);
+        }
+
+        /* ===== КАРТА ===== */
         .map-viewport {
             flex: 1;
-            background: #0f1214;
+            background: #0a0d0e;
             position: relative;
             overflow: hidden;
             cursor: grab;
         }
 
-        .map-viewport:active {
-            cursor: grabbing;
-        }
+        .map-viewport:active { cursor: grabbing; }
 
-        /* ИСПРАВЛЕНО: Для корректного зума в точку курсора origin должен быть в левом верхнем углу */
         .infinite-wrapper {
             display: flex;
             position: absolute;
             transform-origin: 0 0;
-
-            /* Подсказки для браузера, чтобы он не мылил SVG при масштабировании */
             transform: translateZ(0);
-            /* Включает GPU-ускорение */
-
-            /* Отключаем размытие текстур */
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
             image-rendering: pixelated;
@@ -190,97 +353,185 @@
             width: auto;
             height: 85vh;
             display: block;
-
-            /* Это заставляет браузер всегда рендерить геометрию */
             shape-rendering: crispEdges;
-            /* Важно для масштабирования контуров */
             vector-effect: non-scaling-stroke;
         }
 
-        /* СТИЛИ ДЛЯ ПРОВИНЦИЙ */
-        /* СТИЛИ ДЛЯ ПРОВИНЦИЙ */
         .province {
             stroke: #121516;
             stroke-width: 1.5;
             cursor: pointer;
-            /* Убираем will-change отсюда, чтобы не перегружать память */
             transition: fill 0.1s ease, stroke 0.1s ease;
         }
 
         .province:hover {
-            /* Вместо тяжелого filter используем простое высветление границ и легкую прозрачность */
             fill-opacity: 0.85;
             stroke: #e9c46a;
             stroke-width: 2.5;
         }
 
-        /* ПРАВАЯ ПАНЕЛЬ */
+        /* Виньетка по краям карты */
+        .map-viewport::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.6);
+            z-index: 1;
+        }
+
+        /* ===== ПРАВАЯ ПАНЕЛЬ ===== */
         .log-sidebar {
-            width: 250px;
-            background: #15191b;
-            border-left: 2px solid #3a4145;
+            width: 232px;
+            background: linear-gradient(180deg, #222220 0%, #1c1c1a 100%);
+            border-left: 2px solid var(--hoi-border);
             display: flex;
             flex-direction: column;
-            padding: 15px;
+            padding: 0;
             box-sizing: border-box;
             z-index: 5;
+            box-shadow: -3px 0 12px rgba(0,0,0,0.5);
         }
 
         .ticker-box {
             flex: 1;
-            background: #0b0d0e;
-            border: 1px solid #3a4145;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid var(--hoi-border);
+            margin: 10px 10px;
             padding: 10px;
+            font-family: 'Special Elite', monospace;
             font-size: 11px;
-            color: #8da1aa;
+            color: var(--hoi-text2);
             overflow-y: auto;
-            line-height: 1.5;
+            line-height: 1.7;
+        }
+
+        .ticker-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .ticker-box::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+        }
+        .ticker-box::-webkit-scrollbar-thumb {
+            background: var(--hoi-border2);
+        }
+
+        .ticker-entry {
+            border-bottom: 1px solid rgba(74,64,53,0.3);
+            padding-bottom: 4px;
+            margin-bottom: 4px;
+        }
+
+        .ticker-time {
+            color: var(--hoi-gold);
+            font-size: 10px;
+        }
+
+        /* ===== НИЖНЯЯ ПОЛОСКА ===== */
+        .bottom-bar {
+            height: 28px;
+            background: linear-gradient(180deg, #161410 0%, #0e0c0a 100%);
+            border-top: 1px solid var(--hoi-border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 20px;
+            font-size: 10px;
+            color: var(--hoi-text2);
+            letter-spacing: 0.5px;
+        }
+
+        .bottom-bar span { opacity: 0.6; }
+        .bottom-bar strong { color: var(--hoi-gold); opacity: 1; font-family: 'Cinzel', serif; font-size: 10px; }
+
+        /* ===== ЗАГРУЗКА ===== */
+        .loading-text {
+            padding: 40px;
+            text-align: center;
+            width: 100%;
+            color: var(--hoi-text2);
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- 1. ВЕРХНЯЯ ПАНЕЛЬ -->
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
     <div class="game-header">
         <div class="country-info-block">
             <div id="player-flag" class="country-flag-badge">🏳️</div>
-            <div id="player-country" class="country-name">ЗАГРУЗКА ДАННЫХ...</div>
+            <div id="player-country" class="country-name">Загрузка…</div>
         </div>
+
         <div class="game-stats">
-            <div class="stat-badge">📅 1 Сентября 1939</div>
-            <div class="stat-badge" style="color: #4caf50;" id="player-status-badge">⚡ Режим: Игрок</div>
-            <div class="stat-badge" id="ruler-badge">Глава: Штаб</div>
+            <div class="stat-badge">
+                <span class="stat-icon">📅</span>
+                <div>
+                    <span class="stat-label">Дата</span>
+                    <span class="stat-value">1 СЕН 1939</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-icon">⚡</span>
+                <div>
+                    <span class="stat-label">Режим</span>
+                    <span class="stat-value" id="player-status-badge">Игрок</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-icon">👤</span>
+                <div>
+                    <span class="stat-label">Глава</span>
+                    <span class="stat-value" id="ruler-badge">Штаб</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-icon">⚙️</span>
+                <div>
+                    <span class="stat-label">Заводы</span>
+                    <span class="stat-value">—</span>
+                </div>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-icon">⚔️</span>
+                <div>
+                    <span class="stat-label">Дивизии</span>
+                    <span class="stat-value">—</span>
+                </div>
+            </div>
         </div>
-        <button class="exit-btn" onclick="exitToMenu()">В меню</button>
+
+        <div class="header-right">
+            <button class="exit-btn" onclick="exitToMenu()">◀ В Меню</button>
+        </div>
     </div>
 
-    <!-- 2. ИГРОВОЙ ТЕАТР -->
+    <!-- ИГРОВОЙ ТЕАТР -->
     <div class="main-theater">
 
         <!-- ЛЕВАЯ ПАНЕЛЬ -->
         <div class="control-sidebar">
             <div class="panel-title">Данные Региона</div>
             <div class="inspector-card">
-                <div id="selected-region-name" style="font-weight: bold; color: #fff; margin-bottom: 5px;">Регион не
-                    выбран</div>
+                <div id="selected-region-name">Регион не выбран</div>
                 <div id="selected-region-status">Кликните по провинции на карте для разведки.</div>
             </div>
 
-            <div class="panel-title">Приказы Штаба</div>
+            <div class="panel-title" style="margin-top: 14px;">Приказы Штаба</div>
             <div class="tool-box">
-                <button class="map-action-btn" onclick="sendTroops()">⚔️ Направить дивизии</button>
-                <button class="map-action-btn" onclick="buildForts()">🛡️ Построить укрепления</button>
-                <button class="map-action-btn" onclick="industrialize()">🏭 Развернуть заводы</button>
+                <button class="map-action-btn" onclick="sendTroops()">⚔️&nbsp; Направить дивизии</button>
+                <button class="map-action-btn" onclick="buildForts()">🛡️&nbsp; Построить укрепления</button>
+                <button class="map-action-btn" onclick="industrialize()">🏭&nbsp; Развернуть заводы</button>
             </div>
         </div>
 
-        <!-- ЦЕНТР: ПЕРЕМЕЩАЕМАЯ КАРТА -->
+        <!-- ЦЕНТР: КАРТА -->
         <div class="map-viewport" id="viewport">
             <div class="infinite-wrapper" id="panzoom-target">
-                <!-- Основная карта -->
                 <div class="map-clone" id="primary-map-container">
-                    <p style="padding: 40px; text-align: center; width: 100%;">Загрузка тактической карты...</p>
+                    <p class="loading-text">Загрузка тактической карты…</p>
                 </div>
             </div>
         </div>
@@ -289,41 +540,40 @@
         <div class="log-sidebar">
             <div class="panel-title">Хроника Событий</div>
             <div class="ticker-box" id="log-ticker">
-                [00:00] Фронтовой штаб развернут.<br>
+                <div class="ticker-entry"><span class="ticker-time">[00:00]</span> Фронтовой штаб развернут.</div>
             </div>
         </div>
     </div>
 
-    <!-- Основная логика инициализации игры и кастомного контроллера -->
+    <!-- НИЖНЯЯ СТАТУСНАЯ СТРОКА -->
+    <div class="bottom-bar">
+        <span>Hearts of History &nbsp;|&nbsp; <strong>Театр Военных Действий</strong></span>
+        <span style="margin-left: auto;">Колёсико — зум &nbsp;·&nbsp; ЛКМ+тянуть — перемещение</span>
+    </div>
+
     <script>
-        // Сырые файлы Gist
         const MAP_URL = 'https://gist.githubusercontent.com/whtine/75e8ff05c613e288f6d20017b2c5b035/raw/d8c957fc238b5e66e88b88c5004ea57d5d984938/gistfile1.txt';
-        const DB_URL = 'https://gist.githubusercontent.com/whtine/3995ac119298d0b2fa1c9907f50e853b/raw/f2544d05cc756a3e93a1c898ec2f7f2d49c41331/gistfile1.txt';
+        const DB_URL  = 'https://gist.githubusercontent.com/whtine/3995ac119298d0b2fa1c9907f50e853b/raw/f2544d05cc756a3e93a1c898ec2f7f2d49c41331/gistfile1.txt';
 
         async function initGame() {
             try {
-                // 1. Получаем данные из localStorage (которые были сохранены при выборе)
-                const myCountry = localStorage.getItem('selectedHoiCountry') || 'Аргентина';
-                const myColor = localStorage.getItem('selectedHoiColor') || '#58a6ff';
-                const myFlagUrl = localStorage.getItem('selectedHoiFlagUrl') || 'https://flagcdn.com/w80/un.png';
+                const myCountry  = localStorage.getItem('selectedHoiCountry')  || 'Аргентина';
+                const myColor    = localStorage.getItem('selectedHoiColor')     || '#58a6ff';
+                const myFlagUrl  = localStorage.getItem('selectedHoiFlagUrl')   || 'https://flagcdn.com/w80/un.png';
 
-                // Обновляем название страны
                 document.getElementById('player-country').innerText = myCountry;
 
-                // Обновляем флаг в шапке
                 const flagElement = document.getElementById('player-flag');
                 flagElement.style.borderColor = myColor;
-                // Вставляем изображение флага, используя сохраненный URL
-                flagElement.innerHTML = `<img src="${myFlagUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+                flagElement.innerHTML = `<img src="${myFlagUrl}" style="width:100%;height:100%;object-fit:cover;">`;
 
-                // 2. Загрузка базы данных провинций
                 const cacheBuster = `?t=${new Date().getTime()}`;
                 const [dbResponse, svgResponse] = await Promise.all([
-                    fetch(DB_URL + cacheBuster),
+                    fetch(DB_URL  + cacheBuster),
                     fetch(MAP_URL + cacheBuster)
                 ]);
 
-                const dbData = await dbResponse.json();
+                const dbData  = await dbResponse.json();
                 const svgText = await svgResponse.text();
 
                 document.getElementById('primary-map-container').innerHTML = svgText;
@@ -338,14 +588,15 @@
                         prov.style.fill = data.color || '#cccccc';
                         prov.onclick = (e) => {
                             e.stopPropagation();
-                            document.getElementById('selected-region-name').innerText = data.name || "Провинция";
-
-                            // Здесь мы можем использовать тот же механизм для отображения флага владельца региона
-                            // Если у тебя в базе провинций есть тег страны, можно сделать функцию поиска флага по имени
-                            document.getElementById('selected-region-status').innerHTML = `Владелец: <b>${data.country || 'Нейтралы'}</b>`;
+                            document.getElementById('selected-region-name').innerText = data.name || 'Провинция';
+                            document.getElementById('selected-region-status').innerHTML =
+                                `Владелец: <b style="color:#c8a45a">${data.country || 'Нейтралы'}</b>`;
 
                             const ticker = document.getElementById('log-ticker');
-                            ticker.innerHTML += `[Разведка] ${data.name} под контролем ${data.country}.<br>`;
+                            const entry = document.createElement('div');
+                            entry.className = 'ticker-entry';
+                            entry.innerHTML = `<span class="ticker-time">[Разведка]</span> ${data.name} — ${data.country || 'Нейтралы'}`;
+                            ticker.appendChild(entry);
                             ticker.scrollTop = ticker.scrollHeight;
                         };
                     }
@@ -353,33 +604,26 @@
 
                 setupNativeMapControl();
             } catch (err) {
-                console.error("Ошибка инициализации:", err);
+                console.error('Ошибка инициализации:', err);
             }
         }
 
-        // ИСПРАВЛЕНО: Нативный, стабильный контроллер перемещения и зума
         function setupNativeMapControl() {
             const viewport = document.getElementById('viewport');
-            const target = document.getElementById('panzoom-target');
+            const target   = document.getElementById('panzoom-target');
 
             let scale = 1;
-            // Изначально центрируем карту в окне просмотра
-            let x = (viewport.clientWidth - target.clientWidth) / 2 || 0;
+            let x = (viewport.clientWidth  - target.clientWidth)  / 2 || 0;
             let y = (viewport.clientHeight - target.clientHeight) / 2 || 0;
-
             let isDragging = false;
             let startX, startY;
 
             function updateTransform() {
                 target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
             }
-
-            // Устанавливаем базовую позицию
             updateTransform();
 
-            // 1. МЕХАНИКА ПЕРЕТАСКИВАНИЯ (DRAG & DROP)
             viewport.addEventListener('mousedown', (e) => {
-                // Игнорируем клики по кнопкам интерфейса, если они попадут в область
                 if (e.target.closest('.control-sidebar') || e.target.closest('.log-sidebar')) return;
                 isDragging = true;
                 startX = e.clientX - x;
@@ -393,50 +637,32 @@
                 updateTransform();
             });
 
-            window.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
 
-            // 2. СТРАТЕГИЧЕСКИЙ ЗУМ В ТОЧКУ КУРСОРA МЫШИ
             viewport.addEventListener('wheel', (e) => {
                 e.preventDefault();
-
                 const zoomStep = 0.15;
-                const rect = viewport.getBoundingClientRect();
-
-                // Координаты мыши относительно вьюпорта карты
+                const rect  = viewport.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
+                const mapX   = (mouseX - x) / scale;
+                const mapY   = (mouseY - y) / scale;
 
-                // Запоминаем точку на карте, куда указывает мышь до изменения зума
-                const mapX = (mouseX - x) / scale;
-                const mapY = (mouseY - y) / scale;
+                if (e.deltaY < 0) { if (scale < 10)   scale *= (1 + zoomStep); }
+                else              { if (scale > 0.15) scale /= (1 + zoomStep); }
 
-                // Рассчитываем новый масштаб
-                if (e.deltaY < 0) {
-                    if (scale < 10) scale *= (1 + zoomStep); // Приближение (макс х10)
-                } else {
-                    if (scale > 0.15) scale /= (1 + zoomStep); // Отдаление (мин х0.15)
-                }
-
-                // Корректируем смещение (x, y), чтобы зафиксировать точку под курсором
                 x = mouseX - mapX * scale;
                 y = mouseY - mapY * scale;
-
                 updateTransform();
             }, { passive: false });
         }
 
-        function exitToMenu() {
-            window.location.href = 'game.html';
-        }
-
-        function sendTroops() { alert("Приказ: Дивизии выдвигаются в указанный сектор!"); }
-        function buildForts() { alert("Приказ: Начато возведение линии укреплений."); }
-        function industrialize() { alert("Приказ: Выделены средства на постройку фабричных complexes."); }
+        function exitToMenu()    { window.location.href = 'game.html'; }
+        function sendTroops()    { alert('Приказ: Дивизии выдвигаются в указанный сектор!'); }
+        function buildForts()    { alert('Приказ: Начато возведение линии укреплений.'); }
+        function industrialize() { alert('Приказ: Выделены средства на постройку фабричных комплексов.'); }
 
         window.onload = initGame;
     </script>
 </body>
-
 </html>
