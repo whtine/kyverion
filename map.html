@@ -5,9 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hearts of History: Театр Военных Действий</title>
-    <!-- Подключаем библиотеку для плавного перемещения и зума карты -->
-    <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/panzoom/4.5.1/panzoom.min.js"></script>
 
     <style>
         body {
@@ -46,6 +43,15 @@
             width: 35px;
             height: 22px;
             border: 1px solid #e9c46a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            background: #111415;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
         }
 
         .country-name {
@@ -145,11 +151,10 @@
             background: #2e3539;
         }
 
-        /* ЦЕНТР: ОКНО ПРОСМОТРА КАРТЫ (ДРАГ-ЗЕНА) */
+        /* ЦЕНТР: ОКНО ПРОСМОТРА КАРТЫ */
         .map-viewport {
             flex: 1;
             background: #0f1214;
-            /* Цвет мирового океана */
             position: relative;
             overflow: hidden;
             cursor: grab;
@@ -159,37 +164,52 @@
             cursor: grabbing;
         }
 
-        /* Обертка для реализации бесконечного горизонтального цикла */
+        /* ИСПРАВЛЕНО: Для корректного зума в точку курсора origin должен быть в левом верхнем углу */
         .infinite-wrapper {
             display: flex;
             position: absolute;
-            height: 100%;
-            will-change: transform;
+            transform-origin: 0 0;
+
+            /* Подсказки для браузера, чтобы он не мылил SVG при масштабировании */
+            transform: translateZ(0);
+            /* Включает GPU-ускорение */
+
+            /* Отключаем размытие текстур */
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
         }
 
         .map-clone {
-            height: 100%;
             display: flex;
             align-items: center;
+            justify-content: center;
         }
 
-        #world-svg-map {
+        .map-clone svg {
             width: auto;
-            height: 95vh;
-            /* Карта растягивается по высоте экрана */
+            height: 85vh;
             display: block;
+
+            /* Это заставляет браузер всегда рендерить геометрию */
+            shape-rendering: crispEdges;
+            /* Важно для масштабирования контуров */
+            vector-effect: non-scaling-stroke;
         }
 
-        /* СТИЛИ ДЛЯ ТВОИХ ПРОВИНЦИЙ */
+        /* СТИЛИ ДЛЯ ПРОВИНЦИЙ */
+        /* СТИЛИ ДЛЯ ПРОВИНЦИЙ */
         .province {
             stroke: #121516;
             stroke-width: 1.5;
             cursor: pointer;
-            transition: filter 0.12s ease-in-out;
+            /* Убираем will-change отсюда, чтобы не перегружать память */
+            transition: fill 0.1s ease, stroke 0.1s ease;
         }
 
         .province:hover {
-            filter: brightness(1.3) contrast(1.1);
+            /* Вместо тяжелого filter используем простое высветление границ и легкую прозрачность */
+            fill-opacity: 0.85;
             stroke: #e9c46a;
             stroke-width: 2.5;
         }
@@ -224,7 +244,7 @@
     <!-- 1. ВЕРХНЯЯ ПАНЕЛЬ -->
     <div class="game-header">
         <div class="country-info-block">
-            <div id="player-flag" class="country-flag-badge"></div>
+            <div id="player-flag" class="country-flag-badge">🏳️</div>
             <div id="player-country" class="country-name">ЗАГРУЗКА ДАННЫХ...</div>
         </div>
         <div class="game-stats">
@@ -255,18 +275,13 @@
             </div>
         </div>
 
-        <!-- ЦЕНТР: БЕСКОНЕЧНАЯ ПЕРЕМЕЩАЕМАЯ КАРТА -->
+        <!-- ЦЕНТР: ПЕРЕМЕЩАЕМАЯ КАРТА -->
         <div class="map-viewport" id="viewport">
             <div class="infinite-wrapper" id="panzoom-target">
-
                 <!-- Основная карта -->
                 <div class="map-clone" id="primary-map-container">
-                    <!-- Убедись, что viewBox соответствует максимальным координатам твоих полигонов -->
-
+                    <p style="padding: 40px; text-align: center; width: 100%;">Загрузка тактической карты...</p>
                 </div>
-
-                <!-- Клон для бесшовного зацикливания справа -->
-                <div class="map-clone" id="secondary-map-container"></div>
             </div>
         </div>
 
@@ -279,78 +294,148 @@
         </div>
     </div>
 
-    
+    <!-- Основная логика инициализации игры и кастомного контроллера -->
     <script>
-        // Твои ID файлов из Google Drive
-        const SVG_FILE_ID = '1V45IGIsIPLUPVSLTTvkBVOE5kSg4CRij';
-        const JSON_FILE_ID = '1JqYSF0FcqHYre6vyotMREQVGB0ZsqA8c';
-
-        // Используем прокси для обхода блокировок (CORS)
-        const proxy = "https://corsproxy.io/?";
-
-        const MAP_URL = `${proxy}https://drive.google.com/uc?export=download&id=${SVG_FILE_ID}`;
-        const DB_URL = `${proxy}https://drive.google.com/uc?export=download&id=${JSON_FILE_ID}`;
+        // Сырые файлы Gist
+        const MAP_URL = 'https://gist.githubusercontent.com/whtine/75e8ff05c613e288f6d20017b2c5b035/raw/d8c957fc238b5e66e88b88c5004ea57d5d984938/gistfile1.txt';
+        const DB_URL = 'https://gist.githubusercontent.com/whtine/3995ac119298d0b2fa1c9907f50e853b/raw/f2544d05cc756a3e93a1c898ec2f7f2d49c41331/gistfile1.txt';
 
         async function initGame() {
             try {
-                const myCountry = localStorage.getItem('selectedHoiCountry') || 'СССР';
-                const myColor = localStorage.getItem('selectedHoiColor') || '#cc0000';
+                // 1. Получаем данные из localStorage (которые были сохранены при выборе)
+                const myCountry = localStorage.getItem('selectedHoiCountry') || 'Аргентина';
+                const myColor = localStorage.getItem('selectedHoiColor') || '#58a6ff';
+                const myFlagUrl = localStorage.getItem('selectedHoiFlagUrl') || 'https://flagcdn.com/w80/un.png';
 
-                // 1. Загружаем данные из Google Drive через прокси
+                // Обновляем название страны
+                document.getElementById('player-country').innerText = myCountry;
+
+                // Обновляем флаг в шапке
+                const flagElement = document.getElementById('player-flag');
+                flagElement.style.borderColor = myColor;
+                // Вставляем изображение флага, используя сохраненный URL
+                flagElement.innerHTML = `<img src="${myFlagUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+
+                // 2. Загрузка базы данных провинций
+                const cacheBuster = `?t=${new Date().getTime()}`;
                 const [dbResponse, svgResponse] = await Promise.all([
-                    fetch(DB_URL),
-                    fetch(MAP_URL)
+                    fetch(DB_URL + cacheBuster),
+                    fetch(MAP_URL + cacheBuster)
                 ]);
-
-                if (!dbResponse.ok || !svgResponse.ok) throw new Error("Ошибка доступа к Google Drive");
 
                 const dbData = await dbResponse.json();
                 const svgText = await svgResponse.text();
 
-                // 2. Вставляем карту в контейнер
-                const container = document.getElementById('primary-map-container');
-                container.innerHTML = svgText;
+                document.getElementById('primary-map-container').innerHTML = svgText;
 
-                // 3. Логика раскраски (остается прежней)
                 const provinceLookup = {};
-                dbData.forEach(item => provinceLookup[item.id] = item);
+                dbData.forEach(item => { if (item.id) provinceLookup[item.id] = item; });
 
-                const provinces = container.querySelectorAll('.province');
+                const provinces = document.querySelectorAll('.province');
                 provinces.forEach(prov => {
                     const data = provinceLookup[prov.id];
                     if (data) {
-                        prov.style.fill = data.color;
-                        prov.setAttribute('data-name', data.name);
-                        prov.setAttribute('data-country', data.country);
-                    }
+                        prov.style.fill = data.color || '#cccccc';
+                        prov.onclick = (e) => {
+                            e.stopPropagation();
+                            document.getElementById('selected-region-name').innerText = data.name || "Провинция";
 
-                    prov.onclick = (e) => {
-                        e.stopPropagation();
-                        const name = prov.getAttribute('data-name');
-                        const country = prov.getAttribute('data-country');
-                        document.getElementById('selected-region-name').innerText = name;
-                        document.getElementById('selected-region-status').innerHTML = `Владелец: <b>${country}</b>`;
-                    };
+                            // Здесь мы можем использовать тот же механизм для отображения флага владельца региона
+                            // Если у тебя в базе провинций есть тег страны, можно сделать функцию поиска флага по имени
+                            document.getElementById('selected-region-status').innerHTML = `Владелец: <b>${data.country || 'Нейтралы'}</b>`;
+
+                            const ticker = document.getElementById('log-ticker');
+                            ticker.innerHTML += `[Разведка] ${data.name} под контролем ${data.country}.<br>`;
+                            ticker.scrollTop = ticker.scrollHeight;
+                        };
+                    }
                 });
 
-                // Настройка Panzoom
-                setupPanzoom();
-                console.log("Карта успешно загружена с Google Drive");
-
+                setupNativeMapControl();
             } catch (err) {
-                console.error("Критическая ошибка:", err);
-                alert("Браузер блокирует запрос к Google Drive. Попробуйте отключить 'Улучшенную защиту от отслеживания' в настройках браузера или используйте Chrome/Opera.");
+                console.error("Ошибка инициализации:", err);
             }
         }
 
-        function setupPanzoom() {
+        // ИСПРАВЛЕНО: Нативный, стабильный контроллер перемещения и зума
+        function setupNativeMapControl() {
+            const viewport = document.getElementById('viewport');
             const target = document.getElementById('panzoom-target');
-            // Используем глобальный объект Panzoom из библиотеки cdnjs
-            const pz = Panzoom(target, { maxScale: 5, minScale: 0.2 });
-            document.getElementById('viewport').addEventListener('wheel', pz.zoomWithWheel);
+
+            let scale = 1;
+            // Изначально центрируем карту в окне просмотра
+            let x = (viewport.clientWidth - target.clientWidth) / 2 || 0;
+            let y = (viewport.clientHeight - target.clientHeight) / 2 || 0;
+
+            let isDragging = false;
+            let startX, startY;
+
+            function updateTransform() {
+                target.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+            }
+
+            // Устанавливаем базовую позицию
+            updateTransform();
+
+            // 1. МЕХАНИКА ПЕРЕТАСКИВАНИЯ (DRAG & DROP)
+            viewport.addEventListener('mousedown', (e) => {
+                // Игнорируем клики по кнопкам интерфейса, если они попадут в область
+                if (e.target.closest('.control-sidebar') || e.target.closest('.log-sidebar')) return;
+                isDragging = true;
+                startX = e.clientX - x;
+                startY = e.clientY - y;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                x = e.clientX - startX;
+                y = e.clientY - startY;
+                updateTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            // 2. СТРАТЕГИЧЕСКИЙ ЗУМ В ТОЧКУ КУРСОРA МЫШИ
+            viewport.addEventListener('wheel', (e) => {
+                e.preventDefault();
+
+                const zoomStep = 0.15;
+                const rect = viewport.getBoundingClientRect();
+
+                // Координаты мыши относительно вьюпорта карты
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                // Запоминаем точку на карте, куда указывает мышь до изменения зума
+                const mapX = (mouseX - x) / scale;
+                const mapY = (mouseY - y) / scale;
+
+                // Рассчитываем новый масштаб
+                if (e.deltaY < 0) {
+                    if (scale < 10) scale *= (1 + zoomStep); // Приближение (макс х10)
+                } else {
+                    if (scale > 0.15) scale /= (1 + zoomStep); // Отдаление (мин х0.15)
+                }
+
+                // Корректируем смещение (x, y), чтобы зафиксировать точку под курсором
+                x = mouseX - mapX * scale;
+                y = mouseY - mapY * scale;
+
+                updateTransform();
+            }, { passive: false });
         }
 
-        initGame();
+        function exitToMenu() {
+            window.location.href = 'game.html';
+        }
+
+        function sendTroops() { alert("Приказ: Дивизии выдвигаются в указанный сектор!"); }
+        function buildForts() { alert("Приказ: Начато возведение линии укреплений."); }
+        function industrialize() { alert("Приказ: Выделены средства на постройку фабричных complexes."); }
+
+        window.onload = initGame;
     </script>
 </body>
 
